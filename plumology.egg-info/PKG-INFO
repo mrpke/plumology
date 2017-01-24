@@ -1,0 +1,28 @@
+Metadata-Version: 1.1
+Name: plumology
+Version: 0.0.1
+Summary: Plumology - Biased molecular dynamics analysis
+Home-page: https://github.com/tlhr/plumology
+Author: Thomas Löhr
+Author-email: thomas.loehr@tum.de
+License: MIT
+Download-URL: https://github.com/tlhr/plumology
+Description: 
+        Plumology allows the analysis of biased molecular dynamics data,
+        in particular output from PLUMED. It features:
+            - Reading plumed output files
+            - Creating weighted probability distributions, WHAM
+            - An implementation of a self-organising-map
+            - Efficient storage and retrieval of data via HDF5
+            - Wrappers for common backcalculation of experimental values
+            - Convergence analysis for Metadynamics
+            - Comparing data from different simulations
+            - Calculating experimental data RMSDs
+            - A diverse set of flexible plotting routines
+        
+Platform: UNKNOWN
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS
