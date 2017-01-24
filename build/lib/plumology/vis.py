@@ -78,7 +78,7 @@ def fast(filename: str,
             ax = fig.add_subplot(len(data.columns) // 2 + 1, 2, i)
             ax.plot(data['time'], data[col])
             if runningmean:
-                ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], 'r-')
+                ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:])
             ax.set_xlabel('time')
             ax.set_ylabel(col)
 
@@ -162,13 +162,24 @@ def fast_cmp_MetaDf_x(filename: str,
             ax = fig.add_subplot(len(data.columns) // 2 + 1, 2, i)
             ax2 = ax.twinx()
             if not cmp_mean:
-                ax2.plot(metadf['time'], metadf[rep+"_"+column_MetaDf[1]])
-                ax.plot(data['time'], data[col])
+                for col1 in column_MetaDf:
+                    if col1 == 'time':
+                        continue
+                    ax2.plot(metadf['time'], metadf[rep+"_"+col1], label=column_MetaDf[1])
+                ax.plot(data['time'], data[col], label=col)
             if runningmean or cmp_mean:
-                ax2.plot(metadf['time'][999:], metadf[rep+"_"+column_MetaDf[1]].rolling(center=True, window=1000).mean()[999:], 'r-')
-                ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], 'r-')
+                for col1 in column_MetaDf:
+                    if col1 == 'time':
+                        continue
+                    ax2.plot(metadf['time'][999:], metadf[rep+"_"+col1].rolling(center=True, window=1000).mean()[999:], label=column_MetaDf[1])
+                ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], label=col)
+
+            ax.set_yticks(np.linspace(ax.get_yticks()[0],ax.get_yticks()[-1],len(ax2.get_yticks())))
+            ax2.grid(None)
             ax.set_xlabel('time')
             ax.set_ylabel(col)
+            ax2.set_ylabel(column_MetaDf[1])
+            ax.legend()
     plt.show()
 
 def hexplot(
