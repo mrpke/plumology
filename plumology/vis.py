@@ -8,13 +8,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.collections import RegularPolyCollection
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
+import seaborn as sns
 
 from .util import stats, chunk_range, free_energy
 from .util import dist1D as calc_dist1D
 from .io import read_multi, read_plumed
 
 __all__ = ['fast', 'dist1D', 'dist2D', 'hexplot', 'histogram', 'dihedral',
-           'history', 'interactive', 'metai', 'rmsd', 'convergence']
+               'history', 'interactive', 'metai', 'rmsd', 'convergence', 'fast_cmp_MetaDf_x']
 
 
 def fast(filename: str,
@@ -23,6 +24,7 @@ def fast(filename: str,
          start: int=0,
          stop: int=sys.maxsize,
          stat: bool=True,
+         runningmean: bool=False,
          plot: bool=True) -> None:
     '''
     Plot first column with every other column and show statistical information.
@@ -75,9 +77,102 @@ def fast(filename: str,
             i += 1
             ax = fig.add_subplot(len(data.columns) // 2 + 1, 2, i)
             ax.plot(data['time'], data[col])
+            if runningmean:
+                ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], 'r-')
             ax.set_xlabel('time')
             ax.set_ylabel(col)
 
+
+def fast_cmp_MetaDf_x(filename: str,
+                      filename_MetaD: str,
+                      step: int=1,
+                      columns: Union[Sequence[int], Sequence[str], str, None]=None,
+                      column_MetaDf: str=None,
+                      start: int=0,
+                      stop: int=sys.maxsize,
+                      stat: bool=True,
+                      runningmean: bool=False,
+                      cmp_mean: bool=False,
+                      plot: bool=True) -> None:
+    '''
+    Plot first column with every other column and show statistical information.
+
+    Parameters
+    ----------
+    filename : Plumed file to read.
+    step : Reads every step-th line instead of the whole file.
+    columns : Column numbers or field names to read from file.
+    start : Starting point in lines from beginning of file,
+        including commented lines.
+    stop : Stopping point in lines from beginning of file,
+        including commented lines.
+    stats : Show statistical information.
+    plot : Plot Information.
+
+    '''
+    if columns is not None:
+        if isinstance(columns, str):
+            columns = [columns]
+        if 'time' not in columns:
+            columns.insert(0, 'time')
+    if column_MetaDf is not None:
+        if isinstance(column_MetaDf, str):
+            column_MetaDf = [column_MetaDf]
+        if 'time' not in column_MetaDf:
+            column_MetaDf.insert(0, 'time')
+
+    data = read_multi(
+        filename,
+        columns=columns,
+        step=step,
+        start=start,
+        stop=stop,
+        dataframe=True
+    )
+
+    metadf = read_multi(
+        filename_MetaD,
+        columns=column_MetaDf,
+        step=step,
+        start=start,
+        stop=stop,
+        dataframe=True
+    )
+
+
+    if len(data['time'].values.shape) > 1:
+        time = data['time'].values[:, 0]
+        data = data.drop(['time'], axis=1)
+        data['time'] = time
+
+    if stat:
+        stat_strings = stats(data.columns, data.values)
+        for s in stat_strings:
+            print(s)
+
+    if plot:
+        fig = plt.figure(figsize=(16, 3 * len(data.columns)))
+
+        i = 0
+        for col in data.columns:
+            rep = col.split('_')[0]
+            if col == 'time':
+                continue
+            i += 1
+            ax = fig.add_subplot(len(data.columns) // 2 + 1, 2, i)
+            ax2 = ax.twinx()
+            if not cmp_mean:
+                ax2.plot(metadf['time'], metadf[rep+"_"+column_MetaDf[1]])
+                ax.plot(data['time'], data[col])
+            if runningmean or cmp_mean:
+                ax2.plot(metadf['time'][999:], metadf[rep+"_"+column_MetaDf[1]].rolling(center=True, window=1000).mean()[999:], 'r-')
+                ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], 'r-')
+
+            ax2.set_yticks(np.linspace(ax2.get_yticks()[0],ax2.get_yticks()[-1],len(ax1.get_yticks())))
+            ax2.grid(None)
+            ax.set_xlabel('time')
+            ax.set_ylabel(col)
+    plt.show()
 
 def hexplot(
         ax: plt.Axes,

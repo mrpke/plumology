@@ -73,8 +73,8 @@ def _offbyone_check(num1: int, num2: int) -> bool:
         with offset of one, False otherwise.
 
     '''
-    return num1 == num2 or num1 + 1 == num2 or num1 - 1 == num2
-
+    #return num1 == num2 or num1 + 1 == num2 or num1 - 1 == num2
+    return abs(num1-num2) <= 1
 
 def read_plumed_fields(file: str) -> List[str]:
     '''
