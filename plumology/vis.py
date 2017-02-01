@@ -76,7 +76,7 @@ def fast(filename: str,
                 continue
             i += 1
             ax = fig.add_subplot(len(data.columns) // 2 + 1, 2, i)
-            ax.plot(data['time'], data[col])
+            ax.plot(data['time'], data[col], '.')
             if runningmean:
                 ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:])
             ax.set_xlabel('time')
@@ -115,6 +115,7 @@ def fast_cmp_MetaDf_x(filename: str,
             columns = [columns]
         if 'time' not in columns:
             columns.insert(0, 'time')
+
     if column_MetaDf is not None:
         if isinstance(column_MetaDf, str):
             column_MetaDf = [column_MetaDf]
@@ -162,16 +163,14 @@ def fast_cmp_MetaDf_x(filename: str,
             ax = fig.add_subplot(len(data.columns) // 2 + 1, 2, i)
             ax2 = ax.twinx()
             if not cmp_mean:
-                for col1 in column_MetaDf:
-                    if col1 == 'time':
-                        continue
-                    ax2.plot(metadf['time'], metadf[rep+"_"+col1], label=column_MetaDf[1])
+                ax2.plot(metadf['time'], metadf[rep+"_"+column_MetaDf[1]], label=column_MetaDf[1])
                 ax.plot(data['time'], data[col], label=col)
             if runningmean or cmp_mean:
-                for col1 in column_MetaDf:
-                    if col1 == 'time':
-                        continue
-                    ax2.plot(metadf['time'][999:], metadf[rep+"_"+col1].rolling(center=True, window=1000).mean()[999:], label=column_MetaDf[1])
+                ax2.plot(metadf['time'][999:],
+                         metadf[rep+"_"+column_MetaDf[1]].rolling(center=True,
+                                                                  window=1000)\
+                                                                 .mean()[999:],
+                         label=column_MetaDf[1])
                 ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], label=col)
 
             ax.set_yticks(np.linspace(ax.get_yticks()[0],ax.get_yticks()[-1],len(ax2.get_yticks())))
