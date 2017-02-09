@@ -25,6 +25,7 @@ def fast(filename: str,
          stop: int=sys.maxsize,
          stat: bool=True,
          runningmean: bool=False,
+         allinone: bool=False,
          plot: bool=True) -> None:
     '''
     Plot first column with every other column and show statistical information.
@@ -67,7 +68,7 @@ def fast(filename: str,
         for s in stat_strings:
             print(s)
 
-    if plot:
+    if plot and not allinone:
         fig = plt.figure(figsize=(16, 3 * len(data.columns)))
 
         i = 0
@@ -81,6 +82,14 @@ def fast(filename: str,
                 ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:])
             ax.set_xlabel('time')
             ax.set_ylabel(col)
+    if allinone:
+        fig = plt.figure(figsize=(16,3))
+        ax = fig.add_subplot(1,1,1)
+        for col in data.columns:
+            ax.plot(data['time'], data[col], '.', label=col)
+        ax.set_xlabel('time')
+        ax.legend()
+
 
 
 def fast_cmp_MetaDf_x(filename: str,
