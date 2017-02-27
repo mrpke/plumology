@@ -86,10 +86,23 @@ def fast(filename: str,
         fig = plt.figure(figsize=(16,3))
         ax = fig.add_subplot(1,1,1)
         for col in data.columns:
+            if col == 'time':
+                continue
             ax.plot(data['time'], data[col], '.', label=col)
         ax.set_xlabel('time')
-        ax.legend()
 
+    if allinone and runningmean:
+        fig = plt.figure(figsize=(16,3))
+        ax = fig.add_subplot(1,1,1)
+        for col in data.columns:
+            if col == 'time':
+                continue
+            ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], label=col)
+        ax.set_xlabel('time')
+        ax.legend(loc=2, bbox_to_anchor=(1.05, 1), ncol=2)
+
+
+    return data
 
 
 def fast_cmp_MetaDf_x(filename: str,

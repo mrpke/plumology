@@ -25,6 +25,7 @@ def fast(filename: str,
          stop: int=sys.maxsize,
          stat: bool=True,
          runningmean: bool=False,
+         allinone: bool=False,
          plot: bool=True) -> None:
     '''
     Plot first column with every other column and show statistical information.
@@ -67,7 +68,7 @@ def fast(filename: str,
         for s in stat_strings:
             print(s)
 
-    if plot:
+    if plot and not allinone:
         fig = plt.figure(figsize=(16, 3 * len(data.columns)))
 
         i = 0
@@ -81,6 +82,27 @@ def fast(filename: str,
                 ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:])
             ax.set_xlabel('time')
             ax.set_ylabel(col)
+    if allinone:
+        fig = plt.figure(figsize=(16,3))
+        ax = fig.add_subplot(1,1,1)
+        for col in data.columns:
+            if col == 'time':
+                continue
+            ax.plot(data['time'], data[col], '.', label=col)
+        ax.set_xlabel('time')
+
+    if allinone and runningmean:
+        fig = plt.figure(figsize=(16,3))
+        ax = fig.add_subplot(1,1,1)
+        for col in data.columns:
+            if col == 'time':
+                continue
+            ax.plot(data['time'][999:], data[col].rolling(center=True, window=1000).mean()[999:], label=col)
+        ax.set_xlabel('time')
+        ax.legend(loc=2, bbox_to_anchor=(1.05, 1), ncol=2)
+
+
+    return data
 
 
 def fast_cmp_MetaDf_x(filename: str,
@@ -599,8 +621,7 @@ def metai(file: str,
 
     name = data.columns[1].split('.')[0]
     for j in range(sc):
-        kappa = 1 / ((data[name + '.sigmaMean_' + str(j)] *
-                      data[name + '.rewSigmaMean']) ** 2 +
+        kappa = 1 / (data[name + '.sigmaMean_' + str(j)] ** 2 +
                      data[name + '.sigma_' + str(j)] ** 2)
         ax_kappa.plot(data['time'], kappa, label=j)
 

@@ -283,10 +283,11 @@ def read_multi(
     for i, file in enumerate(filelist):
         df = read_plumed(file, **kwargs)
 
+        rep = "".join(list(filter(str.isdigit, file)))
         # Horizontal concatenation requires unique column names
         if ret.startswith('h'):
             dflist.append(df.rename(columns={
-                k: '{0}_{1}'.format(i, k) for k in df.columns
+                k: '{0}_{1}_{2}'.format(i, k, rep) for k in df.columns
                 if 'time' not in k
             }))
         else:

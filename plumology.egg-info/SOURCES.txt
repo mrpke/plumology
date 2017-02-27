@@ -10,4 +10,5 @@ plumology/io/__init__.py
 plumology/io/hdf.py
 plumology/io/rw.py
 plumology/learn/__init__.py
+plumology/learn/sgoop.py
 plumology/learn/som.py
